@@ -12,12 +12,23 @@ import (
 func main() {
 	start := time.Now()
 	ch := make(chan string)
-	for _, url := range os.Args[1:] {
+	file, errors := os.Open(os.Args[1])
+	fmt.Println("File is opened...")
+	if errors != nil {
+		fmt.Println(errors)
+		return
+	}
+
+	for _, url := range os.Args[2:] {
 		go fetch(url, ch)
 	}
-	for range os.Args[1:] {
-		fmt.Println(<-ch)
+
+	for range os.Args[2:] {
+		canal := <-ch
+		fmt.Println("Chanal: ...", canal)
+		file.WriteString(<-ch)
 	}
+	defer file.Close()
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 }
 
